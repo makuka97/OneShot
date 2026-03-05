@@ -769,3 +769,222 @@ textarea.rpg-inp { resize: vertical; min-height: 72px; font-size: 17px; }
   60% { opacity:1; transform: translate(-50%,-90%) scale(1.3) rotate(200deg); }
   100%{ opacity:0; transform: translate(-50%,-130%) scale(.9) rotate(360deg); }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE — Portrait & Landscape
+   On phones: full-screen parchment + bottom tab nav
+   Hides left/right panels, surfaces them as tabs instead
+═══════════════════════════════════════════════════════════ */
+
+/* ── MOBILE TAB BAR (hidden on desktop) ─────────────────── */
+.mobile-tabs {
+  display: none;
+}
+
+@media (max-width: 768px) {
+
+  /* Use dynamic viewport height so keyboard doesn't break layout */
+  html, body { height: 100dvh; overflow: hidden; }
+
+  /* ── MENU ─────────────────────────────────────────── */
+  .menu-logo { font-size: 38px; letter-spacing: 6px; }
+  .menu-btns { max-width: 100%; }
+  .mbtn { padding: 16px 18px; }
+  .mbtn b { font-size: 9px; }
+
+  /* ── LOBBY ────────────────────────────────────────── */
+  .lobby-body { flex-direction: column; }
+  .lobby-left { border-right: none; border-bottom: 2px solid var(--rim); }
+  .lobby-right { width: 100%; }
+  .slot-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* ── CHARACTER CREATION ───────────────────────────── */
+  .class-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* ── GAME SCREEN — full restructure ──────────────── */
+  #screen-game { padding: 0; }
+
+  .game-frame {
+    border: none;
+    border-radius: 0;
+  }
+  .game-frame::before,
+  .game-frame::after { display: none; }
+
+  /* Top bar — compact on mobile */
+  .game-topbar {
+    padding: 6px 12px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .loc-label { font-size: 6px; }
+  .loc-name  { font-size: 10px; width: 100%; order: -1; }
+  .topbar-right { margin-left: auto; }
+
+  /* Hide desktop side panels */
+  .game-players { display: none; }
+  .game-right   { display: none; }
+
+  /* Center takes full width */
+  .game-center { flex: 1; min-height: 0; }
+
+  /* Parchment fills all available space */
+  .parchment-wrap {
+    margin: 4px 4px 0;
+    border-width: 2px;
+  }
+  .parchment {
+    padding: 14px 16px 70px;
+    font-size: 15px;
+  }
+  .msg-dm { font-size: 15px; line-height: 1.6; }
+
+  /* Dice display smaller on mobile */
+  .dice-display { padding: 7px 10px; gap: 8px; bottom: 8px; right: 8px; }
+  .d20-wrap { width: 40px; height: 40px; }
+  .d20-value { font-size: 13px; }
+  .dice-meta-tier { font-size: 6px; }
+  .dice-meta-who  { font-size: 12px; }
+
+  /* Typing indicator */
+  .typing-wrap { bottom: 8px; left: 8px; padding: 6px 10px; }
+  .typing-label { font-size: 5px; }
+
+  /* Action bar — bigger tap targets, no label text */
+  .action-bar {
+    margin: 0 4px 4px;
+    padding: 8px 10px;
+    /* Ensure it stays above keyboard */
+    position: relative;
+    z-index: 10;
+  }
+  .action-inner { gap: 8px; margin-bottom: 0; }
+  .action-lbl { display: none; } /* hide "ACTION:" label to save space */
+  .action-inp {
+    font-size: 16px; /* 16px prevents iOS zoom on focus */
+    padding: 10px 12px;
+  }
+  .send-btn {
+    padding: 10px 14px;
+    font-size: 7px;
+  }
+
+  /* ── MOBILE TAB BAR ───────────────────────────────── */
+  .mobile-tabs {
+    display: flex;
+    background: var(--panel);
+    border-top: 2px solid var(--rim2);
+    flex-shrink: 0;
+    z-index: 20;
+  }
+  .mob-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 8px 4px;
+    background: none;
+    border: none;
+    border-top: 2px solid transparent;
+    color: var(--text3);
+    cursor: pointer;
+    transition: all .15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mob-tab.active {
+    color: var(--gold);
+    border-top-color: var(--gold);
+    background: rgba(201,162,39,.06);
+  }
+  .mob-tab-icon { font-size: 18px; }
+  .mob-tab-lbl  { font-family: var(--pixel); font-size: 5px; letter-spacing: 1px; }
+
+  /* ── MOBILE PANELS (slide up over parchment) ─────── */
+  .mob-panel {
+    display: none;
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    background: var(--panel);
+    border-top: 2px solid var(--rim2);
+    z-index: 15;
+    max-height: 55vh;
+    overflow-y: auto;
+    padding: 14px;
+    animation: slideUp .2s ease-out;
+  }
+  .mob-panel.open { display: block; }
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+
+  /* Party panel content */
+  .mob-party-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .mob-pcard {
+    background: var(--card); border: 1px solid var(--rim);
+    padding: 8px; display: flex; align-items: center; gap: 8px;
+  }
+  .mob-pcard.me { border-color: var(--gold-dim); }
+  .mob-pcard-icon { font-size: 22px; }
+  .mob-pcard-info { flex: 1; min-width: 0; }
+  .mob-pcard-name { font-family: var(--pixel); font-size: 6px; color: var(--text); margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mob-hp-bar { height: 6px; background: var(--deep); border: 1px solid var(--rim); margin-bottom: 2px; }
+  .mob-hp-fill { height: 100%; background: var(--green); }
+  .mob-hp-fill.mid { background: #d4820a; }
+  .mob-hp-fill.low { background: var(--red); }
+  .mob-pcard-stats { font-family: var(--pixel); font-size: 5px; color: var(--gold-dim); }
+
+  /* Perks in panel */
+  .mob-perk-list { display: flex; flex-direction: column; gap: 6px; }
+  .mob-perk-btn {
+    width: 100%; text-align: left;
+    background: var(--card); border: 1px solid var(--rim);
+    color: var(--text); padding: 10px 12px;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    cursor: pointer; transition: all .13s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mob-perk-btn:active { background: var(--hover); }
+  .mob-perk-btn:disabled { opacity: .3; }
+  .mob-perk-btn.passive { opacity: .5; border-style: dashed; cursor: default; }
+  .mob-perk-left { flex: 1; min-width: 0; }
+  .mob-perk-name { font-family: var(--pixel); font-size: 7px; color: var(--gold-dim); margin-bottom: 2px; }
+  .mob-perk-desc { font-family: var(--mono); font-size: 15px; color: var(--text2); }
+  .mob-perk-uses { font-family: var(--pixel); font-size: 6px; color: var(--green); white-space: nowrap; }
+
+  /* Voice row in party panel */
+  .mob-voice-row {
+    display: flex; gap: 8px; margin-top: 12px; padding-top: 12px;
+    border-top: 1px solid var(--rim);
+  }
+  .mob-voice-row button {
+    flex: 1; padding: 10px;
+    font-family: var(--pixel); font-size: 7px;
+  }
+
+  /* ── KEYBOARD HANDLING ────────────────────────────── */
+  /* When keyboard is open on iOS/Android, shrink parchment */
+  @supports (height: 100dvh) {
+    #screen-game { height: 100dvh; }
+  }
+}
+
+/* ── LANDSCAPE MOBILE ─────────────────────────────────────── */
+@media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
+  .game-topbar { padding: 4px 10px; }
+  .loc-name { font-size: 9px; width: auto; order: 0; }
+  .parchment { padding: 10px 14px 60px; }
+  .msg-dm { font-size: 14px; }
+  .action-bar { padding: 6px 8px; }
+  .action-inp { padding: 7px 10px; font-size: 16px; }
+  .mobile-tabs { padding: 2px 0; }
+  .mob-tab { padding: 4px; }
+  .mob-tab-icon { font-size: 14px; }
+}
