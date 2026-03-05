@@ -294,6 +294,7 @@ document.getElementById('btn-char-ok').onclick = () => {
 // ── GAME SCREEN ───────────────────────────────────────────────
 function initGame() {
   voice = new VoiceChat(socket);
+  window.voice = voice; // expose for debugging
   document.getElementById('btn-voice').onclick  = () => voice.joinVoice();
   document.getElementById('btn-mute').onclick   = () => voice.toggleMute();
 
@@ -546,3 +547,142 @@ window.addEventListener('load', () => {
     show('name');
   }
 });
+
+// ═══════════════════════════════════════════════════════════
+// MOBILE — Tab switching, mobile panel rendering, keyboard fix
+// ═══════════════════════════════════════════════════════════
+
+// Tab switcher — called from onclick in HTML
+function mobTab(btn, panel) {
+  // Update tab active states
+  document.querySelectorAll('.mob-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+
+  // Close all panels
+  document.querySelectorAll('.mob-panel').forEach(p => p.classList.remove('open'));
+
+  // Open requested panel (empty string = story view, no panel)
+  if (panel) {
+    const el = document.getElementById(`mob-panel-${panel}`);
+    if (el) el.classList.add('open');
+    // Blur action input so keyboard closes when switching tabs
+    document.getElementById('action-inp')?.blur();
+  }
+}
+
+// Render compact player cards in mobile party panel
+function renderMobileParty() {
+  if (!lobby) return;
+  const grid = document.getElementById('mob-party-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  Object.values(lobby.players).forEach(p => {
+    const isMe = p.id === myId;
+    const cls  = CLASSES_CACHE[p.class] || {};
+    const hpPct = p.stats.maxHp > 0 ? Math.max(0, (p.stats.hp / p.stats.maxHp) * 100) : 0;
+    const hpClass = hpPct > 60 ? 'full' : hpPct > 25 ? 'mid' : 'low';
+
+    const div = document.createElement('div');
+    div.className = `mob-pcard ${isMe ? 'me' : ''}`;
+    div.innerHTML = `
+      <div class="mob-pcard-icon">${cls.icon || '⚔'}</div>
+      <div class="mob-pcard-info">
+        <div class="mob-pcard-name">${esc(p.characterName || p.name)}${isMe ? ' ★' : ''}</div>
+        <div class="mob-hp-bar"><div class="mob-hp-fill ${hpClass}" style="width:${hpPct}%"></div></div>
+        <div class="mob-pcard-stats">${p.stats.hp}/${p.stats.maxHp} HP · ${p.stats.gold}g</div>
+      </div>
+    `;
+    grid.appendChild(div);
+  });
+}
+
+// Render perks in mobile abilities panel
+function renderMobilePerks() {
+  const me = lobby?.players[myId];
+  if (!me) return;
+  const list = document.getElementById('mob-perk-list');
+  if (!list) return;
+  list.innerHTML = '';
+
+  (me.perks || []).forEach(perk => {
+    const uses  = me.activePerks?.[perk.id];
+    const spent = !perk.passive && uses !== undefined && uses <= 0;
+    const btn   = document.createElement('button');
+    btn.className = `mob-perk-btn ${perk.passive ? 'passive' : ''}`;
+    btn.disabled  = perk.passive || spent;
+    btn.innerHTML = `
+      <div class="mob-perk-left">
+        <div class="mob-perk-name">${esc(perk.name)}${perk.passive ? ' · PASSIVE' : ''}</div>
+        <div class="mob-perk-desc">${esc(perk.description)}</div>
+      </div>
+      ${!perk.passive && uses !== undefined ? `<span class="mob-perk-uses">${uses > 0 ? uses + 'x' : 'SPENT'}</span>` : ''}
+    `;
+    if (!perk.passive && !spent) {
+      btn.onclick = () => {
+        socket.emit('use_perk', { perkId: perk.id });
+        // Switch back to story tab after using ability
+        const storyTab = document.querySelector('.mob-tab[data-panel=""]');
+        if (storyTab) mobTab(storyTab, '');
+      };
+    }
+    list.appendChild(btn);
+  });
+}
+
+// Wire up mobile voice buttons (mirrors desktop voice)
+function initMobileVoice() {
+  const mobVoiceBtn = document.getElementById('mob-btn-voice');
+  const mobMuteBtn  = document.getElementById('mob-btn-mute');
+  if (mobVoiceBtn) {
+    mobVoiceBtn.onclick = async () => {
+      await voice?.joinVoice();
+      mobVoiceBtn.style.display = 'none';
+      mobMuteBtn.style.display  = 'block';
+    };
+  }
+  if (mobMuteBtn) {
+    mobMuteBtn.onclick = () => {
+      voice?.toggleMute();
+      const muted = voice?.muted;
+      mobMuteBtn.textContent = muted ? '🔊 UNMUTE' : '🔇 MUTE';
+    };
+  }
+}
+
+// Mobile invite copy
+document.getElementById('mob-btn-copy')?.addEventListener('click', () => {
+  const url = `${location.origin}?join=${myLobbyId}`;
+  navigator.clipboard.writeText(url).then(() => toast('Invite link copied!', 'ok'));
+});
+
+// Fix: prevent iOS from zooming and bouncing when keyboard opens
+// Use visualViewport API to shrink the game frame when keyboard appears
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', () => {
+    const gameScreen = document.getElementById('screen-game');
+    if (!gameScreen || !gameScreen.classList.contains('active')) return;
+    // Set height to visual viewport height so parchment shrinks above keyboard
+    gameScreen.style.height = `${window.visualViewport.height}px`;
+    gameScreen.style.top    = `${window.visualViewport.offsetTop}px`;
+  });
+}
+
+// Hook into existing renderParty to also update mobile panels
+const _origRenderParty = renderParty;
+// Override — calls both desktop and mobile renderers
+window.renderParty = function() {
+  _origRenderParty();
+  renderMobileParty();
+  renderMobilePerks();
+  // Update mobile invite code
+  const mic = document.getElementById('mob-invite-code');
+  if (mic && myLobbyId) mic.textContent = myLobbyId;
+};
+
+// Also call mobile init when game starts
+const _origInitGame = initGame;
+window.initGame = function() {
+  _origInitGame();
+  initMobileVoice();
+};
