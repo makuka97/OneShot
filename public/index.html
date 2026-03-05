@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>ONESHOT</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -16,14 +19,11 @@
   <div class="menu-wrap">
     <div class="menu-eyebrow">◆ A ONE-SHOT CAMPAIGN ◆</div>
     <h1 class="menu-logo">ONESHOT</h1>
-    <p class="menu-sub">Simplified D&D &nbsp;·&nbsp; 1–4 Players &nbsp;·&nbsp; Online</p>
     <div class="menu-btns">
       <button class="mbtn" id="btn-host">
-        <span class="mbtn-icon">⚔</span>
         <div><b>HOST A GAME</b><small>Create lobby · invite friends</small></div>
       </button>
       <button class="mbtn" id="btn-join-menu">
-        <span class="mbtn-icon">🚪</span>
         <div><b>JOIN A GAME</b><small>Enter a 6-character lobby code</small></div>
       </button>
     </div>
@@ -192,6 +192,48 @@
       </div>
 
     </div>
+
+    <!-- ── MOBILE PANELS (slide up over parchment) ── -->
+    <div class="mob-panel" id="mob-panel-party">
+      <div class="sec-label">PARTY</div>
+      <div class="mob-party-grid" id="mob-party-grid"></div>
+      <div class="mob-voice-row">
+        <button class="rpg-btn" id="mob-btn-voice" style="background:rgba(42,158,82,.15);border-color:var(--green);color:var(--green-hi)">🎙 JOIN VOICE</button>
+        <button class="rpg-btn" id="mob-btn-mute" style="display:none;background:rgba(184,50,40,.15);border-color:var(--red);color:var(--red-hi)">🔇 MUTE</button>
+      </div>
+    </div>
+
+    <div class="mob-panel" id="mob-panel-abilities">
+      <div class="sec-label">ABILITIES</div>
+      <div class="mob-perk-list" id="mob-perk-list"></div>
+    </div>
+
+    <div class="mob-panel" id="mob-panel-invite">
+      <div class="sec-label">INVITE FRIEND</div>
+      <div style="font-family:var(--pixel);font-size:18px;color:var(--gold-hi);letter-spacing:6px;text-align:center;background:var(--deep);border:1px solid var(--gold-dim);padding:12px;margin-bottom:12px" id="mob-invite-code">——</div>
+      <button class="rpg-btn" id="mob-btn-copy" style="width:100%">⧉ COPY INVITE LINK</button>
+    </div>
+
+    <!-- ── MOBILE TAB BAR ── -->
+    <div class="mobile-tabs">
+      <button class="mob-tab active" data-panel="" onclick="mobTab(this,'')">
+        <span class="mob-tab-icon">📜</span>
+        <span class="mob-tab-lbl">STORY</span>
+      </button>
+      <button class="mob-tab" data-panel="party" onclick="mobTab(this,'party')">
+        <span class="mob-tab-icon">⚔️</span>
+        <span class="mob-tab-lbl">PARTY</span>
+      </button>
+      <button class="mob-tab" data-panel="abilities" onclick="mobTab(this,'abilities')">
+        <span class="mob-tab-icon">✨</span>
+        <span class="mob-tab-lbl">ABILITIES</span>
+      </button>
+      <button class="mob-tab" data-panel="invite" onclick="mobTab(this,'invite')">
+        <span class="mob-tab-icon">🔗</span>
+        <span class="mob-tab-lbl">INVITE</span>
+      </button>
+    </div>
+
   </div>
 </div>
 
