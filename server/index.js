@@ -363,7 +363,7 @@ function serializeLobby(lobby) {
 function serializePlayers(players) {
   const out = {};
   for (const [id, p] of Object.entries(players)) {
-    out[id] = { id: p.id, name: p.name, characterName: p.characterName, isHost: p.isHost, ready: p.ready, characterCreated: p.characterCreated, class: p.class, stats: p.stats, perks: p.perks, activePerks: p.activePerks, disconnected: p.disconnected||false };
+    out[id] = { id: p.id, socketId: p.socketId, name: p.name, characterName: p.characterName, isHost: p.isHost, ready: p.ready, characterCreated: p.characterCreated, class: p.class, stats: p.stats, perks: p.perks, activePerks: p.activePerks, disconnected: p.disconnected||false };
   }
   return out;
 }
